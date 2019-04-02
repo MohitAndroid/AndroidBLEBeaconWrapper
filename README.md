@@ -10,6 +10,7 @@
  <p>
  <pre>
   dependencies {
+  
 	        implementation 'com.github.MohitAndroid:AndroidBleBeaconWrapper:1.0.0
   }
  </pre>

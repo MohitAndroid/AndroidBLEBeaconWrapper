@@ -27,12 +27,13 @@
         headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36");
 
         bleBeaconWrapper.getBeaconData(url,
-                DNAEntity.class, headerMap, 3000, new BleBeaconListener<BeaconResultEntity>() {
+                DNAEntity.class, headerMap, 3000, new BleBeaconListener<DNAEntity>() {
                     @Override
-                    public void onResult(List<BeaconResultEntity> list) {
+                    public void onBeaconDataResult(List<BeaconResultEntity> list) {
                         Log.d("BLE-RESPONSE", "Total : " + list.size());
                         for (int i = 0; i < list.size(); i++) {
-                            Log.d("BLE-RESPONSE", "Inside : " + list.get(i).getResult().size());
+                            Log.d("BLE-RESPONSE", "Inside : " + list.get(i).getBeaconDetail().getBluetoothAddress()
+                            + " | Accuracy : "+list.get(i).getBeaconDetail().getAccuracy());
                         }
 
                     }
@@ -45,6 +46,12 @@
                     @Override
                     public void onShowProgress() {
                         Log.d("BLE-RESPONSE", "onShowProgress");
+                    }
+
+                    @Override
+                    public void onParsableDataResult(List<DNAEntity> parsableData) {
+                        Log.d("BLE-RESPONSE", "onParsableDataResult");
+                        //Your json parsable data list
                     }
                 });
    </pre>

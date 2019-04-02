@@ -13,5 +13,6 @@ public interface BleBeaconListener<T> {
 
     void onShowProgress();
 
+    void onDismissProgress();
 
 }

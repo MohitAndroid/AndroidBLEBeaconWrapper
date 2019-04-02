@@ -72,6 +72,7 @@ public class BLEBeaconWrapper<T> {
 
                     @Override
                     public void onResponse(String responseString) {
+                        tBleBeaconListener.onDismissProgress();
                         parseClassFields(responseString);
                     }
 

@@ -7,12 +7,13 @@ import java.util.List;
 
 public interface BleBeaconListener<T> {
 
-    void onResult(List<BeaconResultEntity> beaconResultEntities);
+    void onBeaconDataResult(List<BeaconResultEntity> beaconResultEntities);
 
     void onError(String errorMsg);
 
     void onShowProgress();
 
-    void onDismissProgress();
+    void onParsableDataResult(List<T> parsableData);
+
 
 }

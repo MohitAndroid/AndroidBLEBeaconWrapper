@@ -2,14 +2,15 @@ package com.androidblebeaconwrapperlib.beaconwrapper;
 
 import android.app.Activity;
 
-
 import com.androidblebeaconwrapperlib.beacon.BeaconHelper;
 import com.androidblebeaconwrapperlib.beacon.BeaconResultEntity;
 import com.androidblebeaconwrapperlib.beacon.BeaconResultListener;
+import com.androidblebeaconwrapperlib.beaconwrapper.BleBeaconListener;
 import com.androidblebeaconwrapperlib.network.NetworkManager;
 import com.androidblebeaconwrapperlib.network.RequestCallBackListener;
 import com.androidblebeaconwrapperlib.parse.FilterListener;
 import com.androidblebeaconwrapperlib.parse.ParserListClass;
+
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,6 @@ public class BLEBeaconWrapper<T> {
     private long timeInterval;
     private Class<T> t;
     private BleBeaconListener<T> tBleBeaconListener;
-    private List<T> parsableList;
 
 
     public BLEBeaconWrapper(Activity context) {
@@ -47,14 +47,6 @@ public class BLEBeaconWrapper<T> {
 
     }
 
-    public void getBeaconData(String json, Class<T> t, long timeInterval,
-                              BleBeaconListener<T> tBleBeaconListener) {
-        this.t = t;
-        this.timeInterval = timeInterval;
-        this.tBleBeaconListener = tBleBeaconListener;
-        parseClassFields(json);
-    }
-
     public void getBeaconData(List<T> list, long timeInterval,
                               BleBeaconListener<T> tBleBeaconListener) {
         this.timeInterval = timeInterval;
@@ -72,7 +64,6 @@ public class BLEBeaconWrapper<T> {
 
                     @Override
                     public void onResponse(String responseString) {
-                        tBleBeaconListener.onDismissProgress();
                         parseClassFields(responseString);
                     }
 
@@ -88,7 +79,7 @@ public class BLEBeaconWrapper<T> {
         parserListClass.parseData(t, responseString, new FilterListener<T>() {
             @Override
             public void onResponse(List<T> filteredData) {
-                BLEBeaconWrapper.this.parsableList = filteredData;
+                tBleBeaconListener.onParsableDataResult(filteredData);
                 beaconWrapperOperation(filteredData);
             }
 
@@ -99,10 +90,6 @@ public class BLEBeaconWrapper<T> {
         });
     }
 
-    public List<T> getParsableData() {
-        return this.parsableList;
-    }
-
     public void stopBeaconUpdates() {
         beaconHelper.stopBeaconUpdates();
     }
@@ -111,7 +98,7 @@ public class BLEBeaconWrapper<T> {
         beaconHelper.startBeaconUpdates(filteredData, timeInterval, new BeaconResultListener() {
             @Override
             public void onResult(List<BeaconResultEntity> beaconResultEntities) {
-                tBleBeaconListener.onResult(beaconResultEntities);
+                tBleBeaconListener.onBeaconDataResult(beaconResultEntities);
             }
 
             @Override

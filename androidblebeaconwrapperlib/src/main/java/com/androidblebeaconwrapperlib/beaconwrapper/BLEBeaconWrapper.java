@@ -2,15 +2,16 @@ package com.androidblebeaconwrapperlib.beaconwrapper;
 
 import android.app.Activity;
 
+
 import com.androidblebeaconwrapperlib.beacon.BeaconHelper;
+import com.androidblebeaconwrapperlib.beacon.BeaconListener;
 import com.androidblebeaconwrapperlib.beacon.BeaconResultEntity;
 import com.androidblebeaconwrapperlib.beacon.BeaconResultListener;
-import com.androidblebeaconwrapperlib.beaconwrapper.BleBeaconListener;
+import com.androidblebeaconwrapperlib.beacon.IBeacon;
 import com.androidblebeaconwrapperlib.network.NetworkManager;
 import com.androidblebeaconwrapperlib.network.RequestCallBackListener;
 import com.androidblebeaconwrapperlib.parse.FilterListener;
 import com.androidblebeaconwrapperlib.parse.ParserListClass;
-
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ public class BLEBeaconWrapper<T> {
     private long timeInterval;
     private Class<T> t;
     private BleBeaconListener<T> tBleBeaconListener;
+    private BeaconListener tBeaconListener;
 
 
     public BLEBeaconWrapper(Activity context) {
@@ -52,6 +54,13 @@ public class BLEBeaconWrapper<T> {
         this.timeInterval = timeInterval;
         this.tBleBeaconListener = tBleBeaconListener;
         beaconWrapperOperation(list);
+    }
+
+    public void getBeaconData(long timeInterval,
+                              BeaconListener tBeaconListener) {
+        this.timeInterval = timeInterval;
+        this.tBeaconListener = tBeaconListener;
+        BeaconOnlyWrapper();
     }
 
     private void networkOperation() {
@@ -104,6 +113,20 @@ public class BLEBeaconWrapper<T> {
             @Override
             public void onError(String errorMsg) {
                 tBleBeaconListener.onError(errorMsg);
+            }
+        });
+    }
+
+    private void BeaconOnlyWrapper() {
+        beaconHelper.startBeaconUpdates( timeInterval, new BeaconListener() {
+            @Override
+            public void onResult(List<IBeacon> beaconResultEntities) {
+                tBeaconListener.onResult(beaconResultEntities);
+            }
+
+            @Override
+            public void onError(String errorMsg) {
+                tBeaconListener.onError(errorMsg);
             }
         });
     }

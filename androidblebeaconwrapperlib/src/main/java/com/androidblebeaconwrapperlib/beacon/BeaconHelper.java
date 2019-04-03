@@ -27,8 +27,11 @@ public class BeaconHelper<T> {
     private Map<String, List<T>> dataMap = new HashMap<>();
     private List<DifferentBeaconEntity> oldKeys, newKeys;
     private BeaconResultListener beaconResultListener;
+    private BeaconListener beaconListener;
     private Handler mHandler;
     private Timer timer;
+    private boolean isOnlyBeaconStuff;
+    private List<IBeacon> iBeacons;
 
     public BeaconHelper(Activity context) {
         this.context = context;
@@ -41,10 +44,13 @@ public class BeaconHelper<T> {
         oldKeys = new ArrayList<>();
         newKeys = new ArrayList<>();
         mHandler = new Handler();
+        iBeacons = new ArrayList<>();
         timer = new Timer();
+        isOnlyBeaconStuff = false;
     }
 
     public void startBeaconUpdates(List<T> data, long timeInterval, BeaconResultListener beaconResultListener) {
+        this.isOnlyBeaconStuff = false;
         this.beaconResultListener = beaconResultListener;
         this.data = data;
         try {
@@ -76,6 +82,36 @@ public class BeaconHelper<T> {
             }, 0, timeInterval);
         } catch (BeaconKeySerializeException e) {
             displayError(e.getMessage());
+        }
+    }
+
+    public void startBeaconUpdates(long timeInterval, BeaconListener beaconListener) {
+        this.isOnlyBeaconStuff = true;
+        this.beaconListener = beaconListener;
+        try {
+            String validationErrorMsg = checkValidation();
+            if (!TextUtils.isEmpty(validationErrorMsg)) {
+                displayBeaconError(validationErrorMsg);
+                return;
+            }
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (iBeacons != null
+                                    && !iBeacons.isEmpty()) {
+                                BeaconHelper.this.beaconListener.onResult(iBeacons);
+                            }
+                        }
+                    });
+
+                }
+            }, 0, timeInterval);
+        } catch (Exception e) {
+            displayBeaconError(e.getMessage());
         }
     }
 
@@ -129,13 +165,41 @@ public class BeaconHelper<T> {
                         public void run() {
                             IBeacon iBeacon = IBeacon.fromScanData(scanRecord, rssi, device);
                             if (iBeacon != null) {
-                                getBeaconFilteredData(iBeacon);
+                                if (isOnlyBeaconStuff) {
+                                    getOnlyBeaconData(iBeacon);
+                                } else {
+                                    getBeaconFilteredData(iBeacon);
+                                }
                             }
                         }
                     });
 
                 }
             };
+
+    private void getOnlyBeaconData(IBeacon iBeacon) {
+        try{
+            boolean isAdd = true;
+            for (int i = 0; i < iBeacons.size(); i++) {
+                if (iBeacons.get(i).getBluetoothAddress().equals(iBeacon.getBluetoothAddress())) {
+
+                    iBeacons.get(i).setAccuracy(iBeacon.getAccuracy());
+                    iBeacons.get(i).setBleDataPayload(iBeacon.getBleDataPayload());
+                    iBeacons.get(i).setProximityUuid(iBeacon.getProximityUuid());
+                    iBeacons.get(i).setRssi(iBeacon.getRssi());
+                    iBeacons.get(i).setTimezoneString(iBeacon.getTimezoneString());
+                    isAdd = false;
+                    break;
+                }
+            }
+            if (isAdd) {
+                iBeacons.add(iBeacon);
+            }
+        }catch (Exception e){
+            displayBeaconError(e.getMessage());
+        }
+
+    }
 
 
     private boolean isStringTypeData() {
@@ -175,7 +239,7 @@ public class BeaconHelper<T> {
             setNewKeys();
 //            if (isDifferent(oldKeys, newKeys)) {
 //                setOldKeys();
-//                this.beaconResultListener.onResult(beaconResultEntities);
+//                this.beaconResultListener.onBeaconDataResult(beaconResultEntities);
 //            }
         } catch (Exception e) {
             displayError(e.getMessage());
@@ -184,6 +248,9 @@ public class BeaconHelper<T> {
 
     private void displayError(String msg) {
         this.beaconResultListener.onError(msg);
+    }
+    private void displayBeaconError(String msg) {
+        this.beaconListener.onError(msg);
     }
 
     private void filterBeaconMapData(IBeacon iBeacon) {

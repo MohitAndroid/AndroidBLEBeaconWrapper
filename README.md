@@ -11,7 +11,7 @@
  <pre>
   dependencies {
   
-	    implementation 'com.github.MohitAndroid:AndroidBleBeaconWrapper:1.0.0'
+	    implementation 'com.github.MohitAndroid:AndroidBleBeaconWrapper:1.0.2'
   }
  </pre>
  

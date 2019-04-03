@@ -55,3 +55,26 @@
                             }
                         });
    </pre>
+   
+   
+   <h3>Near by iBeacons</h3>
+   
+   <pre>
+   
+           BLEBeaconWrapper1 bleBeaconWrapper = new BLEBeaconWrapper(this);
+   	   bleBeaconWrapper1.getBeaconData(1000, new BeaconListener() {
+            @Override
+            public void onResult(List<IBeacon> beaconResultEntities) {
+                for (int i = 0; i < beaconResultEntities.size(); i++) {
+                    Log.d("BLE-RESPONSE", "Beacon : " + beaconResultEntities.get(i).getBluetoothAddress());
+                }
+                Log.d("BLE-RESPONSE", "***********************************");
+            }
+
+            @Override
+            public void onError(String errorMsg) {
+
+            }
+        });
+   
+   </pre>

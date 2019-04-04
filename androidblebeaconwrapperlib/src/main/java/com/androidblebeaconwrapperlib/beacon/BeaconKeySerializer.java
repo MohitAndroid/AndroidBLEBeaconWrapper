@@ -9,12 +9,8 @@ import static java.util.Objects.requireNonNull;
 public class BeaconKeySerializer {
     List<FieldTypeEntity> fieldTypeEntities;
 
-    private BeaconKeySerializer() {
+    public BeaconKeySerializer() {
         fieldTypeEntities = new ArrayList<>();
-    }
-
-    public static BeaconKeySerializer getInstance(){
-        return new BeaconKeySerializer();
     }
 
     public List<FieldTypeEntity> getBeaconAnnotationDetails(Object object) throws BeaconKeySerializeException {

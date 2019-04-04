@@ -26,18 +26,19 @@ public class ParserListClass<T> {
     private static final String JSON_OBJECT = "jsonObject";
     private static final String JSON_ARRAY = "jsonArray";
     private int count = 0;
+    private List<T> parableObjects;
     private String jsonString;
     private FilterListener<T> filterListener;
 
-    private ParserListClass() {
+    public ParserListClass() {
+        rootFields = new ArrayList<>();
+        count = 0;
+        gson = new Gson();
+        parableObjects = new ArrayList<>();
     }
 
-    public static ParserListClass getInstance(){
-        return new ParserListClass();
-    }
 
     private void setFields() throws ParseFilterException {
-        rootFields = new ArrayList<>();
         try {
             for (Field field : t.getDeclaredFields()) {
                 field.setAccessible(true);
@@ -78,9 +79,6 @@ public class ParserListClass<T> {
             this.t = t;
             this.filterListener = filterListener;
             this.jsonString = jsonString;
-
-            count = 0;
-            gson = new Gson();
 
             if (!TextUtils.isEmpty(this.jsonString) && this.t != null &&
                     this.filterListener != null) {

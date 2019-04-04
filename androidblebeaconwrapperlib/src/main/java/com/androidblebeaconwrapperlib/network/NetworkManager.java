@@ -20,7 +20,11 @@ import okhttp3.Response;
 public class NetworkManager {
 
 
-    public NetworkManager() {
+    private NetworkManager() {
+    }
+
+    public static NetworkManager getInstance(){
+        return new NetworkManager();
     }
 
     public void getRequest(String baseUrl, Map<String, String> headerData,

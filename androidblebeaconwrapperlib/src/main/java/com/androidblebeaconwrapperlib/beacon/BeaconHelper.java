@@ -33,9 +33,20 @@ public class BeaconHelper<T> {
     private boolean isOnlyBeaconStuff;
     private List<IBeacon> iBeacons;
 
-    public BeaconHelper(Activity context) {
+    private BeaconHelper(Activity context) {
         this.context = context;
-        beaconKeySerializer = new BeaconKeySerializer();
+    }
+
+    public static BeaconHelper getInstance(Activity context) {
+        return new BeaconHelper(context);
+    }
+
+    public void startBeaconUpdates(List<T> data, long timeInterval, BeaconResultListener beaconResultListener) {
+        this.isOnlyBeaconStuff = false;
+        this.beaconResultListener = beaconResultListener;
+        this.data = data;
+
+        beaconKeySerializer =  BeaconKeySerializer.getInstance();
         beaconResultEntities = new ArrayList<>();
         bluetoothManager =
                 (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -44,15 +55,8 @@ public class BeaconHelper<T> {
         oldKeys = new ArrayList<>();
         newKeys = new ArrayList<>();
         mHandler = new Handler();
-        iBeacons = new ArrayList<>();
         timer = new Timer();
-        isOnlyBeaconStuff = false;
-    }
 
-    public void startBeaconUpdates(List<T> data, long timeInterval, BeaconResultListener beaconResultListener) {
-        this.isOnlyBeaconStuff = false;
-        this.beaconResultListener = beaconResultListener;
-        this.data = data;
         try {
             String validationErrorMsg = checkValidation();
             if (!TextUtils.isEmpty(validationErrorMsg)) {
@@ -88,6 +92,14 @@ public class BeaconHelper<T> {
     public void startBeaconUpdates(long timeInterval, BeaconListener beaconListener) {
         this.isOnlyBeaconStuff = true;
         this.beaconListener = beaconListener;
+
+        bluetoothManager =
+                (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+        mHandler = new Handler();
+        iBeacons = new ArrayList<>();
+        timer = new Timer();
+
         try {
             String validationErrorMsg = checkValidation();
             if (!TextUtils.isEmpty(validationErrorMsg)) {
@@ -178,7 +190,7 @@ public class BeaconHelper<T> {
             };
 
     private void getOnlyBeaconData(IBeacon iBeacon) {
-        try{
+        try {
             boolean isAdd = true;
             for (int i = 0; i < iBeacons.size(); i++) {
                 if (iBeacons.get(i).getBluetoothAddress().equals(iBeacon.getBluetoothAddress())) {
@@ -195,7 +207,7 @@ public class BeaconHelper<T> {
             if (isAdd) {
                 iBeacons.add(iBeacon);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             displayBeaconError(e.getMessage());
         }
 
@@ -249,6 +261,7 @@ public class BeaconHelper<T> {
     private void displayError(String msg) {
         this.beaconResultListener.onError(msg);
     }
+
     private void displayBeaconError(String msg) {
         this.beaconListener.onError(msg);
     }

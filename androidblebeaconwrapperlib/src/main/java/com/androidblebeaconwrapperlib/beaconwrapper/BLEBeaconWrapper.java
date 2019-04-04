@@ -32,10 +32,11 @@ public class BLEBeaconWrapper<T> {
 
     public BLEBeaconWrapper(Activity context) {
         this.context = context;
-        networkManager = new NetworkManager();
-        parserListClass = new ParserListClass();
-        beaconHelper = new BeaconHelper(this.context);
+        networkManager = NetworkManager.getInstance();
+        parserListClass = ParserListClass.getInstance();
+        beaconHelper = BeaconHelper.getInstance(this.context);
     }
+
 
     public void getBeaconData(String url, Class<T> t, Map<String, String> headerData,
                               long timeInterval, BleBeaconListener<T> tBleBeaconListener) {
@@ -118,7 +119,7 @@ public class BLEBeaconWrapper<T> {
     }
 
     private void BeaconOnlyWrapper() {
-        beaconHelper.startBeaconUpdates( timeInterval, new BeaconListener() {
+        beaconHelper.startBeaconUpdates(timeInterval, new BeaconListener() {
             @Override
             public void onResult(List<IBeacon> beaconResultEntities) {
                 tBeaconListener.onResult(beaconResultEntities);

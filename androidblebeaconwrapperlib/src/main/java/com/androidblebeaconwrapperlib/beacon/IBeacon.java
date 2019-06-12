@@ -362,7 +362,7 @@ public class IBeacon {
 
         String dataPayload = "";
         if (scanRecord.length > 0) {
-            for (int i = 14; i < scanRecord.length; i++) {
+            for (int i = 9; i < scanRecord.length; i++) {
                 try {
                     String data = new String(new byte[]{scanRecord[i]}, "UTF-8");
                     dataPayload += data;
